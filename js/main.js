@@ -6,6 +6,8 @@
   const score = document.getElementById("score");
   const bad = document.getElementById("bad");
   const miss = document.getElementById("miss");
+  const accuracy = document.getElementById("accuracy"); 
+  const ar = document.getElementById("ar");
 
   //サウンドエフェクト
   const typeSound = new Audio("sound/カタッ(Enterキーを押した音).mp3");
@@ -83,6 +85,7 @@
   //正誤カウント
   let scoreCount =0;
   let badCount = 0;
+  let accuracyRate;
 
   //問題のセット
   function q(){
@@ -102,6 +105,7 @@
       //スコアを加点
       scoreCount++;
       score.textContent = scoreCount;
+      rate();
 
       //タイプ音を鳴らす
       typeSound.currentTime = 0;
@@ -118,6 +122,7 @@
       //ミスタイプに加点
       badCount++;
       bad.textContent = badCount;
+      rate();
 
       //ブザーを鳴らす
       badSound.currentTime = 0;
@@ -137,6 +142,20 @@
       };
     };
   });
+
+    //パーセンテージの表示
+    function rate(){
+      let accuracyRate = (scoreCount / (scoreCount + badCount) * 100).toFixed(2);
+      accuracy.textContent = accuracyRate;
+      ar.classList.remove("safe","caution","dead");
+      if(accuracyRate >= 95){
+        ar.classList.add("safe");
+      } else if(accuracyRate >= 80){
+        ar.classList.add("caution");
+      } else {
+        ar.classList.add("dead");
+      };
+    };
 
   //始めの問題をセット
   q();
