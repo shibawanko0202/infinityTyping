@@ -98,7 +98,6 @@
     //untypeの1文字目と一致していたら
     if(e.key === untype.textContent.charAt(0)){
       //untypeから削ってtypedに足す
-      // typed.textContent += untype.textContent.charAt(0);
       typed.textContent += "_";
       untype.textContent = untype.textContent.slice(1);
 
