@@ -19,8 +19,6 @@
   //ミスタイプのキーリスト
   const missType = [];
 
-  let mt;
-
   //問題集
   const questions = [
     "helloworld",
@@ -92,7 +90,32 @@
     untype.textContent = questions[Math.floor(Math.random() * questions.length)];
     typed.textContent = "";
   };
+
+  //パーセンテージの表示
+  function rate(){
+    let accuracyRate = (scoreCount / (scoreCount + badCount) * 100).toFixed(2);
+    accuracy.textContent = accuracyRate;
+    ar.classList.remove("safe","caution","dead");
+    if(accuracyRate >= 95){
+      ar.classList.add("safe");
+    } else if(accuracyRate >= 80){
+      ar.classList.add("caution");
+    } else {
+      ar.classList.add("dead");
+    };
+  };
   
+  //ミスしたキーのバルーンを作成
+  function missBaloon(key){
+    let balloon = document.createElement("div");
+    balloon.className = "balloon";
+    balloon.id = `${key}`;
+    balloon.style.top = "calc(" + 1 * Math.random() * 100 + "%)";
+    balloon.style.left = "calc(" + 1 *Math.random() * 100 + "%)";
+    balloon.textContent = `${key}`;
+    container.appendChild(balloon);
+  };
+
   //キーボードを叩いたら
   window.addEventListener("keydown",(e)=>{
     //untypeの1文字目と一致していたら
@@ -129,10 +152,15 @@
 
       //ミスタイプのキーをカウント
       if(miss.textContent.match(e.key)){ //すでにあるなら加点
-        mt = missType.find((v) => v.key === e.key).num;
+        let mt = missType.find((v) => v.key === e.key).num;
+
         miss.textContent = miss.textContent.replace(`${e.key}:${mt}`,`${e.key}:${mt + 1}`);
         missType.find((v) => v.key === e.key).num++;
-      } else { //初めてのカウント
+
+        document.getElementById(`${e.key}`).style.transform = `scale(${(missType.find((v) => v.key === e.key).num)})`;
+
+      } else { //初めてのミスキーカウント
+        missBaloon(e.key);
         missType.push({
           key:e.key,
           num:1,
@@ -141,20 +169,6 @@
       };
     };
   });
-
-    //パーセンテージの表示
-    function rate(){
-      let accuracyRate = (scoreCount / (scoreCount + badCount) * 100).toFixed(2);
-      accuracy.textContent = accuracyRate;
-      ar.classList.remove("safe","caution","dead");
-      if(accuracyRate >= 95){
-        ar.classList.add("safe");
-      } else if(accuracyRate >= 80){
-        ar.classList.add("caution");
-      } else {
-        ar.classList.add("dead");
-      };
-    };
 
   //始めの問題をセット
   q();
