@@ -46,7 +46,7 @@
 
   //問題のセット
   function q(){
-    const q = questions.splice(Math.floor(Math.random() * questions.length),1)[0]
+    const q = questions[Math.floor(Math.random() * questions.length)];
     untype.textContent = q.word;
     typed.textContent = "";
     more.textContent = q.mean;
