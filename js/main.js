@@ -21,9 +21,9 @@
   const untype = document.getElementById("untype");
   const score = document.getElementById("score");
   const bad = document.getElementById("bad");
-  const more = document.getElementById("more");
+  const mean = document.getElementById("mean");
   const accuracy = document.getElementById("accuracy"); 
-  const ar = document.getElementById("ar");
+  const rate = document.getElementById("rate");
   const main = document.getElementById("main");
   const hambarger = document.getElementById("hambarger");
   const overlay = document.getElementById("overlay");
@@ -45,29 +45,29 @@
   let accuracyRate;
 
   //問題のセット
-  function q(){
+  function setQuestion(){
     const q = questions[Math.floor(Math.random() * questions.length)];
     untype.textContent = q.word;
     typed.textContent = "";
-    more.textContent = q.mean;
+    mean.textContent = q.mean;
   };
 
   //パーセンテージの表示
-  function rate(){
+  function renderRate(){
     let accuracyRate = (scoreCount / (scoreCount + badCount) * 100).toFixed(2);
     accuracy.textContent = accuracyRate;
-    ar.classList.remove("safe","caution","dead");
+    rate.classList.remove("safe","caution","dead");
     if(accuracyRate >= 95){
-      ar.classList.add("safe");
+      rate.classList.add("safe");
     } else if(accuracyRate >= 80){
-      ar.classList.add("caution");
+      rate.classList.add("caution");
     } else {
-      ar.classList.add("dead");
+      rate.classList.add("dead");
     };
   };
   
   //ミスしたキーのバルーンを作成
-  function missBaloon(key){
+  function createBalloon(key){
     let balloon = document.createElement("div");
     balloon.className = "balloon";
     balloon.id = `${key}`;
@@ -77,8 +77,7 @@
     //カーソルをのせたら数値を表示
     balloon.addEventListener("mouseenter",()=>{
       balloon.style.fontSize = "10px";
-      let mt = missType.find((v) => v.key === balloon.textContent).num;
-      balloon.textContent += `:${mt}`
+      balloon.textContent += `:${missType.find((v) => v.key === balloon.textContent).num}`;
     });
     balloon.addEventListener("mouseleave",()=>{
       balloon.style.fontSize = "14px";
@@ -112,7 +111,7 @@
       //スコアを加点
       scoreCount++;
       score.textContent = scoreCount;
-      rate();
+      renderRate();
       //文字を跳ねさせる
       score.classList.add("pyon");
       score.addEventListener("animationend",()=>{
@@ -125,7 +124,7 @@
 
       //もしuntypeが無くなったら次の問題へ
       if(untype.textContent.length === 0){
-        q();
+        setQuestion();
         resetSound.currentTime = 0;
         resetSound.play();
       };
@@ -134,7 +133,7 @@
       //ミスタイプに加点
       badCount++;
       bad.textContent = badCount;
-      rate();
+      renderRate();
       //文字を跳ねさせる
       bad.classList.add("pyon");
       bad.addEventListener("animationend",()=>{
@@ -147,14 +146,12 @@
 
       //ミスタイプのキーをカウント
       if(missType.find((v) => v.key === e.key)){ //すでにあるなら加点
-        let mt = missType.find((v) => v.key === e.key).num;
-
         missType.find((v) => v.key === e.key).num++;
-
+        //大きくする倍率指定
         document.getElementById(`${e.key}`).style.transform = `scale(${(missType.find((v) => v.key === e.key).num) * 0.9})`;
 
       } else { //初めてのミスキーカウント
-        missBaloon(e.key);
+        createBalloon(e.key);
         missType.push({
           key:e.key,
           num:1,
@@ -164,5 +161,5 @@
   });
 
   //始めの問題をセット
-  q();
+  setQuestion();
 }
