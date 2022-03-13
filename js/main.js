@@ -32,10 +32,11 @@
 
   //サウンドエフェクト
   const typeSound = new Audio("sound/カタッ(Enterキーを押した音).mp3");
-  typeSound.volume = 0.5;
+  typeSound.volume = 0.4;
   const resetSound = new Audio("sound/受話器置く03.mp3");
-  const badSound = new Audio("sound/パッ.mp3");
-  badSound.volume = .9;
+  resetSound.volume = 0.8;
+  const bubbleSound = new Audio("sound/パッ.mp3");
+  bubbleSound.volume = .9;
 
   //ミスタイプのキーリスト
   const missType = [];
@@ -44,6 +45,7 @@
   let scoreCount = 0;
   let badCount = 0;
   let accuracyRate;
+  let continuousCorrect = 0;
 
   //問題のセット
   function setQuestion(){
@@ -53,9 +55,41 @@
     mean.textContent = q.mean;
   };
 
+  //ボーナスアニメーション
+  function getBonus(point){
+    let bonus = document.createElement("div");
+    bonus.className = "bonus";
+    bonus.style.top = `${Math.random() * 50 + 40}%`;
+    let LorR = Math.floor(Math.random() * 2);
+    if(LorR === 0){
+      bonus.style.left = `${Math.random() * 20 + 5}%`;
+    } else {
+      bonus.style.right = `${Math.random() * 20 + 2}%`;
+    }
+    bonus.textContent = `${point * 10}type`;
+    bonus.style.width = `${point * 6 + 60}px`;
+    bonus.style.height = `${point * 6 + 60}px`;
+    bonus.style.lineHeight = `${point * 6 + 75}px`;
+    bonus.style.fontSize = `${point * 1.5 + 16}px`;
+    bonus.style.backgroundColor = `hsla(${Math.random() * 360}, 65%, 55%, .6)`;
+    bonus.style.animation = "up 5s ease-in forwards,bubble 1s ease-out 5s";
+    bonus.addEventListener("animationend",()=>{
+      bonus.classList.add("explosion");
+        bubbleSound.currentTime = 0;
+        bubbleSound.play();
+        //アニメーションが終了したら要素を消す
+        bonus.addEventListener("animationend",()=>{
+          bonus.classList.add("disabled");
+        });
+    });
+    balloonRoom.appendChild(bonus);
+    bubbleSound.currentTime = 0;
+    bubbleSound.play()
+  };
+
   //パーセンテージの表示
   function renderRate(){
-    let accuracyRate = (scoreCount / (scoreCount + badCount) * 100).toFixed(2);
+    accuracyRate = (scoreCount / (scoreCount + badCount) * 100).toFixed(2);
     accuracy.textContent = accuracyRate;
     rate.classList.remove("safe","caution","dead");
     if(accuracyRate >= 95){
@@ -72,8 +106,8 @@
     let balloon = document.createElement("div");
     balloon.className = "balloon";
     balloon.id = `${key}`;
-    balloon.style.top = `${Math.random() * 100}%`;
-    balloon.style.left = `${Math.random() * 100}%`;
+    balloon.style.top = `${Math.random() * 98 + 1}%`;
+    balloon.style.left = `${Math.random() * 98 + 1}%`;
     balloon.textContent = `${key}`;
     //カーソルをのせたら数値を表示
     balloon.addEventListener("mouseenter",()=>{
@@ -87,8 +121,8 @@
     //クリックしたら破裂
     balloon.addEventListener("click",()=>{
       balloon.classList.add("explosion");
-      badSound.currentTime = 0;
-      badSound.play();
+      bubbleSound.currentTime = 0;
+      bubbleSound.play();
       //アニメーションが終了したら要素を消す
       balloon.addEventListener("animationend",()=>{
         balloon.classList.add("disabled");
@@ -121,8 +155,13 @@
 
       //スコアを加点
       scoreCount++;
+      continuousCorrect++;
       score.textContent = scoreCount;
       renderRate();
+      //連続正解したらボーナス(10の倍数ごと)
+      if((continuousCorrect % 10) == 0){
+        getBonus(continuousCorrect / 10);
+      };
       //文字を跳ねさせる
       score.classList.add("pyon");
       score.addEventListener("animationend",()=>{
@@ -150,10 +189,9 @@
       bad.addEventListener("animationend",()=>{
         bad.classList.remove("pyon");
       });
-
       //ブザーを鳴らす
-      badSound.currentTime = 0;
-      badSound.play();
+      bubbleSound.currentTime = 0;
+      bubbleSound.play();
 
       //ミスタイプのキーをカウント
       if(missType.find((v) => v.key === e.key)){ //すでにあるなら加点
