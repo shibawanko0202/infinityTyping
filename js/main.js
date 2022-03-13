@@ -182,6 +182,7 @@
     } else { //ミスタイプした場合
       //ミスタイプに加点
       badCount++;
+      continuousCorrect = 0;
       bad.textContent = badCount;
       renderRate();
       //文字を跳ねさせる
