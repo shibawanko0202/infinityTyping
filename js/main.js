@@ -47,12 +47,25 @@
   let accuracyRate = 0;
   let continuousCorrect = 0;
 
+    //iosの判定
+    let ua = navigator.userAgent.toLowerCase();
+    let isIOS = ua.indexOf("iphone") !== -1;
+
   //問題のセット
   function setQuestion(){
     const q = questions[Math.floor(Math.random() * questions.length)];
     untype.textContent = q.word;
     typed.textContent = "";
     mean.textContent = q.mean;
+  };
+
+  //音を鳴らす(ios以外)
+  function playSound(sound){
+    if(isIOS){
+      return;
+    };
+    sound.currentTime = 0;
+    sound.play();
   };
 
   //ボーナスアニメーション
@@ -81,12 +94,10 @@
         return;
       };
       animeCount++;
-      bubbleSound.currentTime = 0;
-      bubbleSound.play();
+      playSound(bubbleSound);
     });
     balloonRoom.appendChild(bonus);
-    bubbleSound.currentTime = 0;
-    bubbleSound.play()
+    playSound(bubbleSound);
   };
 
   //パーセンテージの表示
@@ -136,8 +147,7 @@
     //クリックしたら破裂
     balloon.addEventListener("click",()=>{
       balloon.classList.add("explosion");
-      bubbleSound.currentTime = 0;
-      bubbleSound.play();
+      playSound(bubbleSound);
       //アニメーションが終了したら要素を消す
       balloon.addEventListener("animationend",()=>{
         balloon.classList.add("disabled");
@@ -162,6 +172,7 @@
     if(overlay.className === "show"){
       return;
     };
+
     //untypeの1文字目と一致していたら
     if(e.key === untype.textContent.charAt(0)){
       //untypeから削ってtypedに足す
@@ -173,6 +184,7 @@
       continuousCorrect++;
       score.textContent = scoreCount;
       renderRate();
+
       //連続正解したらボーナス(10の倍数ごと)
       if((continuousCorrect % 10) == 0){
         getBonus(continuousCorrect / 10);
@@ -184,14 +196,12 @@
       });
 
       //タイプ音を鳴らす
-      typeSound.currentTime = 0;
-      typeSound.play();
+      playSound(typeSound);
 
       //もしuntypeが無くなったら次の問題へ
       if(untype.textContent.length === 0){
         setQuestion();
-        resetSound.currentTime = 0;
-        resetSound.play();
+        playSound(resetSound);
       };
 
     } else { //ミスタイプした場合
@@ -205,9 +215,9 @@
       bad.addEventListener("animationend",()=>{
         bad.classList.remove("pyon");
       });
+
       //ブザーを鳴らす
-      bubbleSound.currentTime = 0;
-      bubbleSound.play();
+      playSound(bubbleSound);
 
       //ミスタイプのキーをカウント
       if(missType.find((v) => v.key === e.key)){ //すでにあるなら加点
